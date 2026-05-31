@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[41699],{9842:(e,t)=>{Object.defineProperty(t,"__esModule",{value:!0}),t.default=void 0;var a={lastWeek:"'أخر' eeee 'عند' p",yesterday:"'أمس عند' p",today:"'اليوم عند' p",tomorrow:"'غداً عند' p",nextWeek:"eeee 'عند' p",other:"P"},r=function(e,t,r,u){return a[e]};t.default=r,e.exports=t.default}}]);
+//# sourceMappingURL=41699.dtale_bundle.js.map

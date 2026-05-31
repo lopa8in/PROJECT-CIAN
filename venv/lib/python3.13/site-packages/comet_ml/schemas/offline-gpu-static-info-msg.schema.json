@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://comet.com/offline-gpu-static-info-msg-schema.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "required": [
+    "gpu_static_info"
+  ],
+  "properties": {
+    "gpu_static_info": {
+      "$id": "#/properties/gpu_static_info",
+      "type": "array",
+      "title": "The Gpu Static Info Schema",
+      "default": []
+    },
+    "message_id": {
+      "$id": "#/properties/message_id",
+      "type": "integer",
+      "title": "Message ID",
+      "description": "The ID of the message",
+      "default": -1,
+      "examples": [
+        1
+      ]
+    }
+  }
+}

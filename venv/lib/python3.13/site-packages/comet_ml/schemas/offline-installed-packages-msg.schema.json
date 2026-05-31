@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://comet.com/offline-installed-packages-msg-schema.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "required": [
+    "installed_packages"
+  ],
+  "properties": {
+    "installed_packages": {
+      "$id": "#/properties/installed_packages",
+      "type": "array",
+      "title": "The Installed Packages Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": [],
+      "items": {
+        "$id": "#/properties/installed_packages/items",
+        "type": "string",
+        "title": "The Items Schema",
+        "description": "An explanation about the purpose of this instance.",
+        "default": "",
+        "examples": [
+          "fdisk=2.31.1-0.4ubuntu3.5"
+        ]
+      }
+    },
+    "message_id": {
+      "$id": "#/properties/message_id",
+      "type": "integer",
+      "title": "Message ID",
+      "description": "The ID of the message",
+      "default": -1,
+      "examples": [
+        1
+      ]
+    }
+  }
+}

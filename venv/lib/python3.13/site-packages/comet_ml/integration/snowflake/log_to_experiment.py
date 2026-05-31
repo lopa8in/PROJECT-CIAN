@@ -1,0 +1,187 @@
+# -*- coding: utf-8 -*-
+# *******************************************************
+#   ____                     _               _
+#  / ___|___  _ __ ___   ___| |_   _ __ ___ | |
+# | |   / _ \| '_ ` _ \ / _ \ __| | '_ ` _ \| |
+# | |__| (_) | | | | | |  __/ |_ _| | | | | | |
+#  \____\___/|_| |_| |_|\___|\__(_)_| |_| |_|_|
+#
+#  Sign up for free at https://www.comet.com
+#  Copyright (C) 2015-2021 Comet ML INC
+#  This source code is licensed under the MIT license.
+# *******************************************************
+
+import json
+import logging
+import os
+
+import pandas as pd
+
+from ... import _reporting
+from ...artifacts import Artifact
+
+SNOWFLAKE_BASE_URL = os.getenv("SNOWFLAKE_BASE_URL", "https://app.snowflake.com")
+SNOWFLAKE_REMOTE_NAME = "snowflake-dataframe"
+
+LOGGER = logging.getLogger(__name__)
+
+
+def _get_metadata_template():
+    return {"query": "", "sample": "", "error": "", "snowflake_ui_url": ""}
+
+
+def _get_snowflake_ui_url(dataframe):
+    snowflake_connection = dataframe._session._conn._cursor.connection
+    account = snowflake_connection.account
+    region = snowflake_connection.host.replace(".snowflakecomputing.com", "").replace(
+        f"{account}.", ""
+    )
+
+    ui_url = f"{SNOWFLAKE_BASE_URL}/{region}/{account}"
+    return ui_url
+
+
+def _get_sample(dataframe, sample_size):
+    data_sample = dataframe.limit(sample_size).collect()
+    json_sample = json.dumps(
+        [x.as_dict(recursive=True) for x in data_sample], default=str
+    )
+
+    return json_sample
+
+
+def _update_metadata_with_query_string(dataframe, metadata):
+    try:
+        query = ";".join(dataframe.queries["queries"])
+        metadata["query"] = query
+    except Exception as e:
+        error_message = str(e)
+        metadata["error"] = error_message
+        LOGGER.warning(error_message)
+
+
+def _update_metadata_with_sample_info(dataframe, metadata, log_sample, sample_size):
+    if not log_sample:
+        return
+
+    try:
+        sample = _get_sample(dataframe, sample_size)
+        metadata["sample"] = sample
+    except Exception as e:
+        error_message = str(e)
+        metadata["error"] = error_message
+        LOGGER.warning(error_message)
+
+
+def _update_metadata_with_snowflake_ui_url(dataframe, metadata):
+    try:
+        url = _get_snowflake_ui_url(dataframe)
+        metadata["snowflake_ui_url"] = url
+    except Exception as e:
+        error_message = str(e)
+        metadata["error"] = error_message
+        LOGGER.warning(error_message)
+
+
+def _compute_snowflake_dataframe_metadata(dataframe, log_sample, sample_size):
+    metadata = _get_metadata_template()
+
+    _update_metadata_with_query_string(dataframe, metadata)
+    _update_metadata_with_sample_info(dataframe, metadata, log_sample, sample_size)
+    _update_metadata_with_snowflake_ui_url(dataframe, metadata)
+
+    return metadata
+
+
+def log_snowpark_dataframe_v1(
+    experiment,
+    artifact_name,
+    dataframe,
+    artifact_version=None,
+    artifact_aliases=None,
+    log_sample=False,
+    sample_size=10,
+):
+    """
+    Logs a Snowpark Dataframe as a Snowflake Artifact to Comet. The full dataset
+    is not saved in Comet, instead we record both the SQL query and a small
+    preview sample.
+
+    Args:
+        experiment (Experiment): Instance of an Experiment used to log the Artifact.
+        artifact_name (str): The name of the Artifact to create.
+        dataframe (Snowpark Dataframe): The Snowpark Dataframe to record.
+        artifact_version (str): Version of the artifact. If none is provided Comet will auto-increment the version
+        artifact_aliases (Iterable[str]): Aliases to associate with the Artifact
+        log_sample (bool): Whether a preview of the dataset should be saved to the Comet platform.
+        sample_size (int): Number of rows to record from the sample dataframe defined previously.
+
+    Returns: None
+    """
+    metadata = _compute_snowflake_dataframe_metadata(dataframe, log_sample, sample_size)
+
+    artifact = Artifact(
+        name=artifact_name,
+        version=artifact_version,
+        artifact_type="dataset",
+        aliases=artifact_aliases,
+        metadata=metadata,
+    )
+    artifact.add_remote(SNOWFLAKE_REMOTE_NAME, metadata=metadata)
+    experiment.log_artifact(artifact)
+
+    experiment.__internal_api__report__(
+        event_name=_reporting.UPSERT_SNOWFLAKE_ARTIFACT,
+    )
+
+
+def log_artifact_v1(
+    experiment,
+    artifact_name,
+    sql,
+    sample=None,
+    sample_size=100,
+    url=None,
+    artifact_version=None,
+    artifact_aliases=None,
+):
+    """
+    Logs a Snowflake Artifact to Comet based on a SQL query and a sample Pandas
+    DataFrame.
+
+    Args:
+        experiment (Experiment): Instance of an Experiment used to log the Artifact.
+        artifact_name (str): The name of the Artifact to create.
+        sql (str): The SQL used to generate the Snowflake dataset.
+        sample (Pandas DataFrame): Sample of the data generated by the SQL query defined previously.
+        sample_size (int): Number of rows to record from the sample dataframe defined previously. Defaults to 100.
+        artifact_version (str): Version of the artifact. If none is provided Comet will auto-increment the version.
+        artifact_aliases (Iterable[str]): Aliases to associate with the Artifact.
+
+    Returns: None
+    """
+    metadata = _get_metadata_template()
+    metadata["query"] = sql
+
+    if isinstance(sample, pd.DataFrame):
+        metadata["sample"] = sample.head(sample_size).to_json(orient="records")
+    else:
+        LOGGER.debug(
+            "Failed to log sample to the Snowflake Artifact, sample must be a Pandas DataFrame"
+        )
+
+    if url:
+        metadata["snowflake_ui_url"] = url
+
+    artifact = Artifact(
+        name=artifact_name,
+        version=artifact_version,
+        artifact_type="dataset",
+        aliases=artifact_aliases,
+        metadata=metadata,
+    )
+    artifact.add_remote(SNOWFLAKE_REMOTE_NAME, metadata=metadata)
+    experiment.log_artifact(artifact)
+    experiment.__internal_api__report__(
+        event_name=_reporting.UPSERT_SNOWFLAKE_ARTIFACT,
+    )

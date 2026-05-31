@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkdtale=self.webpackChunkdtale||[]).push([[20860],{39803:(e,t,n)=>{n.d(t,{getIconPaths:()=>l});var s=n(43261),a=n(70120),c=n(21811),u=n(6134);function l(e,t){const n=(0,s.fL)(e);return t===u.l.STANDARD?a[n]:c[n]}}}]);
+//# sourceMappingURL=20860.dtale_bundle.js.map

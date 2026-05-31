@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://comet.com/offline-html-override-msg-schema.json",
+  "type": "object",
+  "title": "The Root Schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "required": [
+    "htmlOverride"
+  ],
+  "properties": {
+    "htmlOverride": {
+      "$id": "#/properties/htmlOverride",
+      "type": "string",
+      "title": "The HTML Override Schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "<head>Test clear</head>"
+      ]
+    },
+    "message_id": {
+      "$id": "#/properties/message_id",
+      "type": "integer",
+      "title": "Message ID",
+      "description": "The ID of the message",
+      "default": -1,
+      "examples": [
+        1
+      ]
+    }
+  }
+}

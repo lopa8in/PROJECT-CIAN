@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema",
+  "$id": "http://comet.com/offline-remote-file-msg-schema.json",
+  "type": "object",
+  "title": "The root schema",
+  "description": "The root schema comprises the entire JSON document.",
+  "default": {},
+  "examples": [
+    {
+      "metadata": {},
+      "remote_uri": "s3://bucket/folder/file",
+      "upload_type": "asset",
+      "additional_params": {}
+    }
+  ],
+  "required": [
+    "metadata",
+    "remote_uri",
+    "upload_type",
+    "additional_params"
+  ],
+  "properties": {
+    "metadata": {
+      "$id": "#/properties/metadata",
+      "type": [
+        "object",
+        "null"
+      ],
+      "title": "The metadata schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": {},
+      "examples": [
+        {}
+      ],
+      "additionalProperties": true
+    },
+    "remote_uri": {
+      "$id": "#/properties/remote_uri",
+      "type": "string",
+      "title": "The remote_uri schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "s3://bucket/folder/file"
+      ]
+    },
+    "upload_type": {
+      "$id": "#/properties/upload_type",
+      "type": "string",
+      "title": "The upload_type schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": "",
+      "examples": [
+        "asset"
+      ]
+    },
+    "additional_params": {
+      "$id": "#/properties/additional_params",
+      "type": [
+        "object",
+        "null"
+      ],
+      "title": "The additional_params schema",
+      "description": "An explanation about the purpose of this instance.",
+      "default": {},
+      "examples": [
+        {}
+      ],
+      "additionalProperties": true
+    },
+    "message_id": {
+      "$id": "#/properties/message_id",
+      "type": "integer",
+      "title": "Message ID",
+      "description": "The ID of the message",
+      "default": -1,
+      "examples": [
+        1
+      ]
+    }
+  },
+  "additionalProperties": true
+}

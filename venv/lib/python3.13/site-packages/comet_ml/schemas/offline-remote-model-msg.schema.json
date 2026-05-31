@@ -1,0 +1,39 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://comet.com/offline-model-msg-schema.json",
+  "type": "object",
+  "title": "The Remote Model Schema",
+  "required": [
+    "model_name",
+    "remote_assets"
+  ],
+  "properties": {
+    "model_name": {
+      "$id": "#/properties/model_name",
+      "type": "string",
+      "title": "The model_name Schema",
+      "default": "",
+      "examples": [
+        "modelname1"
+      ],
+      "pattern": "^(.*)$"
+    },
+    "remote_assets": {
+      "$id": "#/properties/remote_assets",
+      "type": "array",
+      "title": "The remote_assets Schema",
+      "default": []
+    },
+    "message_id": {
+      "$id": "#/properties/message_id",
+      "type": "integer",
+      "title": "Message ID",
+      "description": "The ID of the message",
+      "default": -1,
+      "examples": [
+        1
+      ]
+    }
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://comet.com/offline-register-model-msg-schema.json",
+  "type": "object",
+  "title": "The Register Model Schema",
+  "required": [
+    "experiment_id",
+    "model_name",
+    "public",
+    "registry_name",
+    "version",
+    "workspace"
+  ],
+  "properties": {
+    "experiment_id": {
+      "$id": "#/properties/experiment_id",
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "model_name": {
+      "$id": "#/properties/model_name",
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "public": {
+      "$id": "#/properties/public",
+      "type": "boolean"
+    },
+    "registry_name": {
+      "$id": "#/properties/registry_name",
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "version": {
+      "$id": "#/properties/version",
+      "type": "string",
+      "pattern": "^(.*)$",
+      "examples": [
+        "1.2.3"
+      ]
+    },
+    "workspace": {
+      "$id": "#/properties/workspace",
+      "type": "string",
+      "pattern": "^(.*)$"
+    },
+    "comment": {
+      "$id": "#/properties/comment",
+      "type": [
+        "string",
+        "null"
+      ],
+      "title": "The comment for the model",
+      "default": null
+    },
+    "description": {
+      "$id": "#/properties/description",
+      "type": [
+        "string",
+        "null"
+      ],
+      "title": "The description of the model",
+      "default": null
+    },
+    "message_id": {
+      "$id": "#/properties/message_id",
+      "type": "integer",
+      "title": "Message ID",
+      "description": "The ID of the message",
+      "default": -1,
+      "examples": [
+        1
+      ]
+    },
+    "status": {
+      "$id": "#/properties/status",
+      "type": [
+        "string",
+        "null"
+      ],
+      "default": null,
+      "title": "A string describing the status of this model version"
+    },
+    "tags": {
+      "$id": "#/properties/tags",
+      "type": "array",
+      "title": "A list of textual tags",
+      "default": [],
+      "items": {
+        "$id": "#/properties/tags/items",
+        "type": "string",
+        "title": "The Items Schema",
+        "default": ""
+      }
+    },
+    "stages": {
+      "$id": "#/properties/stages",
+      "type": [
+        "array",
+        "null"
+      ],
+      "title": "This is deprecated and will be ignored",
+      "default": null,
+      "items": {
+        "$id": "#/properties/stages/items",
+        "type": "string",
+        "title": "The Items Schema",
+        "default": ""
+      }
+    }
+  }
+}
