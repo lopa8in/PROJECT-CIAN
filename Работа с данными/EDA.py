@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
+import scipy
 
 def nunique_val(df, *columns):
     for col in columns:
@@ -178,5 +179,134 @@ def picture_district_price_ascending(df):
     ax.set_ylabel('Цена недвижимости')
     ax.set_xlabel('Самые дорогостоющие районы')
     ax.tick_params(rotation=87)
+
+def metro_transport_value_c(df):
+    display(df['metro_transport'].value_counts().to_frame())
+
+
+def walk_transport_metro_different_price(df):
+    '''График показывает зависимость цены от типа подхода к метро (на транспорте или пешком)'''
+
+    max_price_rub_transport = df[df['metro_transport'] == 'transport']['price_rub'].max()
+    min_price_rub_transport = df[df['metro_transport'] == 'transport']['price_rub'].min()
+    min_max_price_for_walk = df['price_rub'].between(min_price_rub_transport, max_price_rub_transport, inclusive='both')
+
+    metro_transprot = df[df['metro_transport'] == 'transport']
+    metro_walk = df[(df['metro_transport'] == 'walk') & min_max_price_for_walk].sample(metro_transprot.shape[0], random_state=42)
+
+    concat_walk_transport = pd.concat([metro_transprot, metro_walk], axis=0)
+    group_concat_walk_tr = concat_walk_transport.groupby('metro_transport')['price_rub'].agg(['mean', 'median'])
+    display(group_concat_walk_tr.map(lambda x: f'{x:,.0f}'))
     
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(15,5))
+
+    sns.barplot(
+        data=group_concat_walk_tr,
+        x='metro_transport',
+        y='mean',
+        hue='metro_transport',
+        ax=ax[0]
+    )
+    ax[0].set_title('Средняя цена недвижимости от типа трансопрта')
+    ax[0].set_ylabel('Цена недвижимости')
+    ax[0].set_xlabel('Тип транспорта')
+
+    sns.barplot(
+        data=group_concat_walk_tr,
+        x='metro_transport',
+        y='median',
+        hue='metro_transport',
+        ax=ax[1]
+    )
+    ax[1].set_title('Медианная цена недвижимости от типа трансопрта')
+    ax[1].set_ylabel('Цена недвижимости')
+    ax[1].set_xlabel('Тип транспорта')
+
+
+def walk_transport_between_thousand(df, min_price=20000000, max_price=60000000, n=1000, random_state=42):
+    '''График показывает среднюю и медианную стоимость недвижимости
+        (в диапозоне от 20-60 млн рублей, по по 1000 объектов)'''
     
+    transpor_data = df[(df['metro_transport'] == 'transport') & df['price_rub'].between(min_price, max_price)].sample(n, random_state=random_state)
+    walk_data = df[(df['metro_transport'] == 'walk') & df['price_rub'].between(min_price, max_price)].sample(n, random_state=random_state)
+
+    concat_data = pd.concat([transpor_data, walk_data], axis=0)
+    group_concat_walk_tr = concat_data.groupby('metro_transport')['price_rub'].agg(['mean', 'median'])
+    display(group_concat_walk_tr.map(lambda x: f'{x:,.0f}'))
+
+    fig, ax = plt.subplots(nrows=1, ncols=2, figsize=(13,5))
+
+    sns.barplot(
+        data=group_concat_walk_tr,
+        x='metro_transport',
+        y='mean',
+        hue='metro_transport',
+        ax=ax[0]
+    )
+    ax[0].set_title('Средняя цена недвижимости от типа трансопрта')
+    ax[0].set_ylabel('Цена недвижимости')
+    ax[0].set_xlabel('Тип транспорта')
+
+    sns.barplot(
+        data=group_concat_walk_tr,
+        x='metro_transport',
+        y='median',
+        hue='metro_transport',
+        ax=ax[1]
+    )
+    ax[1].set_title('Медианная цена недвижимости от типа трансопрта')
+    ax[1].set_ylabel('Цена недвижимости')
+    ax[1].set_xlabel('Тип транспорта')
+
+
+def test_of_normal(df, min_price=20000000, max_price=60000000, n=1000, random_state=42, alpha=0.05):
+    '''Статистический тест Шапиро-Уилка'''
+
+    data_1 = df[(df['metro_transport'] == 'transport') & df['price_rub'].between(min_price, max_price)].sample(n, random_state=random_state)
+    data_2 = df[(df['metro_transport'] == 'walk') & df['price_rub'].between(min_price, max_price)].sample(n, random_state=random_state)
+
+    for i in [data_1, data_2]:
+        _, p = scipy.stats.shapiro(i['price_rub'])
+        print(f'p-value = {p:.3f}')
+
+        if p <= alpha:
+            print('❌ Распределение не нормальное')
+        else:
+            print('✅ Распределение нормальное')
+
+def test_mannwhitney(df, min_price=20000000, max_price=60000000, n=1000, random_state=42, alpha=0.05):
+    '''Статистический тест U-критерий Манна-Уитни'''
+
+    data_1 = df[(df['metro_transport'] == 'transport') & df['price_rub'].between(min_price, max_price)].sample(n, random_state=random_state)
+    data_2 = df[(df['metro_transport'] == 'walk') & df['price_rub'].between(min_price, max_price)].sample(n, random_state=random_state)
+
+    _, p = scipy.stats.mannwhitneyu(data_2['price_rub'], data_1['price_rub'], alternative='greater')
+    print(f'p-value - f{p:.3f}')
+
+    if p < alpha:
+        print('✅ Разница статистически значима - walk дороже')
+    else:
+        print('❌ Разница статистически незначима')
+
+
+def distribution_price(df):
+    '''Вывод boxplot и описания признака price_rub'''
+
+    display(df['price_rub'].describe().to_frame().T)
+
+    plt.figure(figsize=(20,5))
+    sns.boxplot(data=df,
+                x='price_rub',
+                color='red')
+    plt.title('Распределение цены недвижимости')
+    plt.xlabel('Цена')
+
+
+def value_count_seller_type(df):
+    display(df['seller_type'].value_counts().to_frame().T)
+
+def picture_seller_type_price(df):
+    between_price_rub = df['price_rub'].between(20000000,60000000)
+
+    group_seller_type = df[between_price_rub].groupby('seller_type')['price_rub'].agg(['mean', 'median'])
+    display(group_seller_type)

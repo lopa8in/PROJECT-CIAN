@@ -1,1 +1,23 @@
+# System
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual environment
 venv/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Data files
+*.csv
+*.xlsx
+*.json
+
+# MLflow
+mlflow.db
+mlruns/
+
+# Temp
+*.log
