@@ -19,6 +19,7 @@
 
 ## 📁 Структура проекта
 
+```
 PROJECT CIAN/
 ├── Parsers/
 │   ├── parser_cian.py                 # Парсер объявлений с ЦИАН
@@ -42,6 +43,7 @@ PROJECT CIAN/
 │
 ├── .gitignore
 └── README.md
+```
 
 ---
 
