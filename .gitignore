@@ -21,3 +21,7 @@ mlruns/
 
 # Temp
 *.log
+
+mlartifacts/
+mlflow.db
+ML/catboost_info/
