@@ -147,6 +147,17 @@ class SellerTypeDrop(BaseEstimator, TransformerMixin):
         df = df.drop(columns=['seller_type'])
         return df
 
+class DropColumns(BaseEstimator, TransformerMixin):
+    
+    def __init__(self, columns):
+        self.columns = columns
+    
+    def fit(self, X, y=None):
+        return self
+    
+    def transform(self, X):
+        return X.drop(columns=self.columns)
+
 #####################################################################################################
 
 def picture_cluster(df):
